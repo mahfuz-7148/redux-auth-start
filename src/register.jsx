@@ -1,11 +1,23 @@
 import React, { useState } from 'react';
 import { User, Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import {useNavigate} from 'react-router';
+import {useDispatch} from 'react-redux';
+import {register} from './store/reducers/auth.js';
 
 export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate()
+  const dispatch = useDispatch()
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
 
   const onSubmit = (e) => {
     e.preventDefault();
+    // console.log(email, password)
+    dispatch(register({ email, password })).then((action) => {
+      localStorage.setItem("accessToken", action.payload.token);
+      navigate("/");
+    });
   };
 
   return (
@@ -35,6 +47,7 @@ export default function Register() {
               type="email"
               name="email"
               placeholder="Email"
+              onChange={e => setEmail(e.target.value)}
               className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 backdrop-blur-sm hover:bg-white/15"
             />
           </div>
@@ -47,6 +60,7 @@ export default function Register() {
               type={showPassword ? "text" : "password"}
               name="password"
               placeholder="Password"
+              onChange={e => setPassword(e.target.value)}
               className="w-full pl-10 pr-12 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 backdrop-blur-sm hover:bg-white/15"
             />
             <button

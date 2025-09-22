@@ -5,9 +5,10 @@ const initialState = {
   currentUser: undefined,
   isLoading: false
 }
+
 export const register = createAsyncThunk('auth/register', async (userData, thunkAPI) => {
   try {
-    const res = await axios.post('https://api.realworld.io/api/users', {
+    const res = await axios.post('/api/api/users', {
       user: userData
     })
     return res.data.user
@@ -16,9 +17,10 @@ export const register = createAsyncThunk('auth/register', async (userData, thunk
     return thunkAPI.rejectWithValue(err.response.data.errors)
   }
 })
+
 export const login = createAsyncThunk('auth/login', async (userData, thunkAPI) => {
   try {
-    const res = await axios.post('https://api.realworld.io/api/users/login', {
+    const res = await axios.post('/api/api/users/login', {
       user: userData
     })
     return res.data.user
@@ -27,6 +29,7 @@ export const login = createAsyncThunk('auth/login', async (userData, thunkAPI) =
     return thunkAPI.rejectWithValue(err.response.data.errors)
   }
 })
+
 export const getCurrentUser = createAsyncThunk('auth/getCurrentUser', async (_, thunkAPI) => {
   try {
     const token = localStorage.getItem('accessToken')
@@ -42,8 +45,40 @@ export const getCurrentUser = createAsyncThunk('auth/getCurrentUser', async (_, 
   }
 })
 
+export const logout = createAsyncThunk('auth/logout',  async () => {
+  localStorage.removeItem('accessToken')
+})
 
 const authSlice = createSlice({
   name: 'auth',
-  initialState
+  initialState,
+  extraReducers: builder => {
+    builder.addCase(register.pending, state => {
+      state.isLoading = true
+    }).addCase(register.fulfilled, (state, action) => {
+      state.isLoading = false
+      state.currentUser = action.payload
+    }).addCase(register.rejected, state => {
+      state.isLoading = false
+    }).addCase(login.pending, state => {
+      state.isLoading = true
+    }).addCase(login.fulfilled, (state, action) => {
+      state.isLoading = false
+      state.currentUser = action.payload
+    }).addCase(login.rejected, state => {
+      state.isLoading = false
+    }).addCase(getCurrentUser.pending, state => {
+      state.isLoading = true
+    }).addCase(getCurrentUser.fulfilled, (state, action) => {
+      state.isLoading = false
+      state.currentUser = action.payload
+    }).addCase(getCurrentUser.rejected, state => {
+      state.isLoading = false
+      state.currentUser = null
+    }).addCase(logout.fulfilled, state => {
+      state.isLoading = false
+      state.currentUser = null
+    })
+  }
 })
+export default authSlice.reducer
